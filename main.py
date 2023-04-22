@@ -18,6 +18,7 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.main_widget = MainWidget()
         self.setCentralWidget(self.main_widget)
+        self.showMaximized()
 
 if __name__ == '__main__':
     app = QApplication([])
