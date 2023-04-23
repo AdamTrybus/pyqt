@@ -40,9 +40,20 @@ class CalendarWidget(QWidget):
         # Tworzenie formatu dla dat z wydarzeniami
         date_format = QTextCharFormat()
         date_format.setBackground(Qt.green)
-        
+
         # Dodawanie formatu dla dat z wydarzeniami
         for event in self.events:
             event_date = QDate.fromString(event['date'], Qt.ISODate)
             self.calendar.setDateTextFormat(event_date, date_format)
+
+    def unhighlight_deleted_date(self, event):
+        # Tworzenie formatu dla usuniętej daty
+        date_format = QTextCharFormat()
+        date_format.setBackground(Qt.white)
+
+        # Dodawanie formatu dla usuniętej daty
+        event_date = QDate.fromString(event['date'], Qt.ISODate)
+        self.calendar.setDateTextFormat(event_date, date_format)
+
+
 
