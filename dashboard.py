@@ -171,7 +171,7 @@ class DashboardWidget(QWidget):
 
         # Przypisanie funkcji do przycisków
         add_button.clicked.connect(lambda: self.handle_add_button_click(dialog, title_edit.text(
-        ), description_edit.text(), date_edit.date().toString("yyyy-MM-dd"), time_edit.time().toString("hh:mm")))
+        ), description_edit.text(), date_edit.date().toString("yyyy-MM-dd"), time_edit.time().toString("hh:mm"), genre_edit.text()))
 
         cancel_button.clicked.connect(dialog.reject)
 
@@ -202,8 +202,8 @@ class DashboardWidget(QWidget):
         self.parent().parent().unhighlight_deleted_date(event)
         self.parent().parent().update_events(self.date)
 
-    def handle_add_button_click(self, dialog, title, description, date, time):
-        self.insert_event(title, description, date, time)
+    def handle_add_button_click(self, dialog, title, description, date, time, genre):
+        self.insert_event(title, description, date, time, genre)
 
         # Zamknięcie okna dialogowego
         dialog.close()
@@ -214,14 +214,14 @@ class DashboardWidget(QWidget):
 
         self.parent().parent().update_events(self.date)
 
-    def insert_event(self, title, description, date, time):
+    def insert_event(self, title, description, date, time, genre):
         # Wczytanie istniejących wydarzeń z pliku JSON
         with open('events.json', 'r') as f:
             events_json = json.load(f)
 
         # Dodanie nowego wydarzenia do listy
         new_event = {'title': title, 'description': description,
-                     'date': date, 'time': time, }
+                     'date': date, 'time': time, 'genre': genre}
         events_json.append(new_event)
 
         # Zapisanie zmienionej listy do pliku JSON
