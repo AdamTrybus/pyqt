@@ -17,7 +17,8 @@ class DashboardWidget(QWidget):
         self.special_event_table.setHorizontalHeaderLabels(
             ['Święta', 'Imieniny', 'Urodziny'])
         self.event_table.setColumnCount(4)
-        self.event_table.setHorizontalHeaderLabels(['Godzina', 'Tytuł', 'Opis'])
+        self.event_table.setHorizontalHeaderLabels(
+            ['Godzina', 'Tytuł', 'Opis'])
 
         # Tworzenie przycisków
         self.button1 = QPushButton("Dodaj", self)
@@ -39,7 +40,6 @@ class DashboardWidget(QWidget):
 
         self.setLayout(layout)
 
-
     def set_events(self, events, date):
         self.date = date
         self.events = events
@@ -55,7 +55,8 @@ class DashboardWidget(QWidget):
             self.event_table.setItem(row, 1, title_item)
 
             self.event_table.setItem(row, 2, description_item)
-            self.event_table.setCellWidget(row, 3, edit_button) # Dodanie przycisku do wiersza
+            # Dodanie przycisku do wiersza
+            self.event_table.setCellWidget(row, 3, edit_button)
 
     def set_special_events(self, events):
         self.events = events
@@ -70,7 +71,7 @@ class DashboardWidget(QWidget):
             else:
                 self.special_event_table.setItem(row, 0, title_item)
             # Dodanie przycisku do wiersza
-            
+
     def edit_event_dialog(self, event):
         print(event)
 
@@ -137,9 +138,11 @@ class DashboardWidget(QWidget):
         description_label = QLabel("Opis:", dialog)
         description_edit = QLineEdit(dialog)
         date_label = QLabel("Data:", dialog)
-        date_edit = QDateEdit(self.date, dialog)
+        date_edit = QDateEdit(dialog)
         time_label = QLabel("Godzina:", dialog)
         time_edit = QTimeEdit(QTime.currentTime(), dialog)
+        genre_label = QLabel("Typ:", dialog)
+        genre_edit = QLineEdit(dialog)
 
         # Tworzenie układu pionowego i dodanie do niego elementów formularza
         layout = QVBoxLayout(dialog)
@@ -151,6 +154,8 @@ class DashboardWidget(QWidget):
         layout.addWidget(date_edit)
         layout.addWidget(time_label)
         layout.addWidget(time_edit)
+        layout.addWidget(genre_label)
+        layout.addWidget(genre_edit)
 
         # Tworzenie przycisków
         add_button = QPushButton("Dodaj", dialog)
@@ -165,7 +170,8 @@ class DashboardWidget(QWidget):
         layout.addLayout(button_layout)
 
         # Przypisanie funkcji do przycisków
-        add_button.clicked.connect(lambda: self.handle_add_button_click(dialog, title_edit.text(), description_edit.text(), date_edit.date().toString("yyyy-MM-dd"), time_edit.time().toString("hh:mm")))
+        add_button.clicked.connect(lambda: self.handle_add_button_click(dialog, title_edit.text(
+        ), description_edit.text(), date_edit.date().toString("yyyy-MM-dd"), time_edit.time().toString("hh:mm")))
 
         cancel_button.clicked.connect(dialog.reject)
 
@@ -175,7 +181,7 @@ class DashboardWidget(QWidget):
     def handle_save_button_click(self, dialog, event, title, description, date, time):
         self.delete_event(event)
         self.insert_event(title, description, date, time)
-        
+
         # Zamknięcie okna dialogowego
         dialog.close()
 
@@ -185,7 +191,7 @@ class DashboardWidget(QWidget):
         self.parent().parent().highlight_dates_with_events()
         self.parent().parent().update_events(self.date)
 
-    def handle_delete_button_click(self, dialog, event):          
+    def handle_delete_button_click(self, dialog, event):
         self.delete_event(event)
 
         # Zamknięcie okna dialogowego
@@ -198,7 +204,7 @@ class DashboardWidget(QWidget):
 
     def handle_add_button_click(self, dialog, title, description, date, time):
         self.insert_event(title, description, date, time)
-        
+
         # Zamknięcie okna dialogowego
         dialog.close()
 
@@ -208,14 +214,14 @@ class DashboardWidget(QWidget):
 
         self.parent().parent().update_events(self.date)
 
-
     def insert_event(self, title, description, date, time):
         # Wczytanie istniejących wydarzeń z pliku JSON
         with open('events.json', 'r') as f:
             events_json = json.load(f)
-        
+
         # Dodanie nowego wydarzenia do listy
-        new_event = {'title': title, 'description': description,'date': date, 'time': time,}
+        new_event = {'title': title, 'description': description,
+                     'date': date, 'time': time, }
         events_json.append(new_event)
 
         # Zapisanie zmienionej listy do pliku JSON

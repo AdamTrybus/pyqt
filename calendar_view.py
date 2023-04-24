@@ -36,7 +36,7 @@ class CalendarWidget(QWidget):
         # Tutaj powinna być logika filtrowania wydarzeń z listy self.events
         filtered_events = [
             event for event in self.events if event['date'] == date.toString(Qt.ISODate)]
-        self.dashboard.set_events(filtered_events)
+        self.dashboard.set_events(filtered_events, date)
 
     def update_special_events(self, date):
         # filtrowanie urodzin, imienin, świąt
