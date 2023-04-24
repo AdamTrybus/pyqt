@@ -42,7 +42,8 @@ class CalendarWidget(QWidget):
         # filtrowanie urodzin, imienin, świąt
         today_events = [
             special_event for special_event in self.events if special_event['date'] == date.toString(Qt.ISODate)]
-        self.dashboard.set_events(today_events)
+        print(date.toString(Qt.ISODate))
+        self.dashboard.set_special_events(today_events)
 
     def highlight_dates_with_events(self):
         # Tworzenie formatu dla dat z wydarzeniami

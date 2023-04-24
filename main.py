@@ -12,9 +12,8 @@ class MainWidget(QWidget):
         dashboard = DashboardWidget(self)
         calendar_widget = CalendarWidget(dashboard, self)
 
-        dt = self.setDateTime(QtCore.QDateTime.currentDateTime())
-        dt_string = dt.toString(Qt.ISODate)
-        self.update_special_events(dt_string)
+        dt = QDate.currentDate()
+        calendar_widget.update_special_events(dt)
         self.layout = QHBoxLayout(self)
         self.layout.addWidget(calendar_widget)
         self.setLayout(self.layout)

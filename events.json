@@ -1,8 +1,1 @@
-[{"date": "2023-04-03", "time": "13:00", "title": "Event 1", "genre": "b"}, 
-{"date": "2023-03-31", "time": "13:30", "title": "Event 4", "genre": "n"}, 
-{"date": "2023-04-09", "time": "17:30", "title": "Event 5", "genre": "f"}, 
-{"date": "2023-03-30", "time": "10:00", "title": "Event 7", "genre": "f"}, 
-{"date": "2023-03-27", "time": "18:00", "title": "Event 8", "genre": "f"}, 
-{"date": "2023-04-03", "time": "18:30", "title": "Event 9", "genre": "b"}, 
-{"date": "2023-03-27", "time": "18:30", "title": "Event 10", "genre": "n"},
- {"date": "2023-04-02", "time": "12:52", "title": "hejjjaaa", "genre": "n"}]
+[{"date": "2023-04-03", "time": "13:00", "title": "Event 1", "genre": "b"}, {"date": "2023-03-31", "time": "13:30", "title": "Event 4", "genre": "n"}, {"date": "2023-04-09", "time": "17:30", "title": "Event 5", "genre": "f"}, {"date": "2023-03-30", "time": "10:00", "title": "Event 7", "genre": "f"}, {"date": "2023-03-27", "time": "18:00", "title": "Event 8", "genre": "f"}, {"date": "2023-04-24", "time": "18:30", "title": "Event 9", "genre": "b"}, {"date": "2023-03-27", "time": "18:30", "title": "Event 10", "genre": "n"}, {"date": "2023-04-02", "time": "12:52", "title": "hejjjaaa", "genre": "n"}, {"date": "2023-04-24", "time": "12:29", "title": "Event11"}]

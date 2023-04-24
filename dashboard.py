@@ -56,15 +56,16 @@ class DashboardWidget(QWidget):
 
     def set_special_events(self, events):
         self.events = events
-        self.event_table.setRowCount(len(events))
+        self.special_event_table.setRowCount(len(events))
+        print(events)
         for row, event in enumerate(events):
             title_item = QTableWidgetItem(event['title'])
             if (event['genre'] == "b"):
-                self.event_table.setItem(row, 2, title_item)
+                self.special_event_table.setItem(row, 2, title_item)
             elif (event['genre'] == "n"):
-                self.event_table.setItem(row, 1, title_item)
+                self.special_event_table.setItem(row, 1, title_item)
             else:
-                self.event_table.setItem(row, 0, title_item)
+                self.special_event_table.setItem(row, 0, title_item)
             # Dodanie przycisku do wiersza
 
     def edit_event_dialog(self, event):
