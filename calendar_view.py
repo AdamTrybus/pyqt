@@ -11,6 +11,7 @@ class CalendarWidget(QWidget):
         self.calendar = QCalendarWidget(self)
         self.calendar.setGridVisible(True)
         self.calendar.clicked[QDate].connect(self.update_events)
+        self.calendar.clicked[QDate].connect(self.update_additional_info)
 
         self.dashboard = dashboard
 
@@ -25,6 +26,7 @@ class CalendarWidget(QWidget):
 
         self.events = self.load_events_from_file('events.json')
         self.highlight_dates_with_events()
+        # self.dashboard.day_information()
 
     def load_events_from_file(self, filename):
         with open(filename, 'r') as f:
@@ -36,7 +38,7 @@ class CalendarWidget(QWidget):
         # Tutaj powinna być logika filtrowania wydarzeń z listy self.events
         filtered_events = [
             event for event in self.events if event['date'] == date.toString(Qt.ISODate)]
-        self.dashboard.set_events(filtered_events)
+        self.dashboard.set_events(filtered_events, date)
 
     def update_special_events(self, date):
         # filtrowanie urodzin, imienin, świąt
@@ -44,6 +46,10 @@ class CalendarWidget(QWidget):
             special_event for special_event in self.events if special_event['date'] == date.toString(Qt.ISODate)]
         print(date.toString(Qt.ISODate))
         self.dashboard.set_special_events(today_events)
+
+    def update_additional_info(self, date):
+        print("cos", date.toPyDate())
+        self.dashboard.day_information(date)
 
     def highlight_dates_with_events(self):
         # Tworzenie formatu dla dat z wydarzeniami
