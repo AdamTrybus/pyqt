@@ -138,11 +138,12 @@ class DashboardWidget(QWidget):
         description_label = QLabel("Opis:", dialog)
         description_edit = QLineEdit(event['description'], dialog)
         date_label = QLabel("Data:", dialog)
-
         date_edit = QDateEdit(QDate.fromString(
             event['date'], "yyyy-MM-dd"), dialog)
         time_label = QLabel("Godzina:", dialog)
         time_edit = QTimeEdit(QTime.fromString(event['time'], 'hh:mm'), dialog)
+        genre_label = QLabel("Typ:", dialog)
+        genre_edit = QLineEdit(event['genre'] ,dialog)
 
         # Tworzenie układu pionowego i dodanie do niego elementów formularza
         layout = QVBoxLayout(dialog)
@@ -154,6 +155,8 @@ class DashboardWidget(QWidget):
         layout.addWidget(date_edit)
         layout.addWidget(time_label)
         layout.addWidget(time_edit)
+        layout.addWidget(genre_label)
+        layout.addWidget(genre_edit)
 
         # Tworzenie przycisków
         save_button = QPushButton("Zatwierdź", dialog)
@@ -170,7 +173,7 @@ class DashboardWidget(QWidget):
         # Przypisanie funkcji do przycisków
 
         save_button.clicked.connect(lambda: self.handle_save_button_click(dialog, event, title_edit.text(
-        ), date_edit.date().toString("yyyy-MM-dd"), time_edit.time().toString("hh:mm")))
+        ), description_edit.text(), date_edit.date().toString("yyyy-MM-dd"), time_edit.time().toString("hh:mm"), genre_edit.text()))
 
         delete_button.clicked.connect(
             lambda: self.handle_delete_button_click(dialog, event))
@@ -190,7 +193,7 @@ class DashboardWidget(QWidget):
         description_label = QLabel("Opis:", dialog)
         description_edit = QLineEdit(dialog)
         date_label = QLabel("Data:", dialog)
-        date_edit = QDateEdit(dialog)
+        date_edit = QDateEdit(self.date, dialog)
         time_label = QLabel("Godzina:", dialog)
         time_edit = QTimeEdit(QTime.currentTime(), dialog)
         genre_label = QLabel("Typ:", dialog)
@@ -230,9 +233,9 @@ class DashboardWidget(QWidget):
         # Wyświetlenie okna dialogowego
         dialog.exec_()
 
-    def handle_save_button_click(self, dialog, event, title, description, date, time):
+    def handle_save_button_click(self, dialog, event, title, description, date, time, genre):
         self.delete_event(event)
-        self.insert_event(title, description, date, time)
+        self.insert_event(title, description, date, time, genre)
 
         # Zamknięcie okna dialogowego
         dialog.close()
