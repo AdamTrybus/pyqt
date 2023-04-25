@@ -1,6 +1,7 @@
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 import json
+import holidays
 
 
 class DashboardWidget(QWidget):
@@ -14,9 +15,9 @@ class DashboardWidget(QWidget):
         # Tworzenie listy dzisiejszych wydarzeń
         self.special_event_table = QTableWidget(self)
         self.special_event_table.setColumnCount(3)
+        self.event_table.setColumnCount(4)
         self.special_event_table.setHorizontalHeaderLabels(
             ['Święta', 'Imieniny', 'Urodziny'])
-        self.event_table.setColumnCount(4)
         self.event_table.setHorizontalHeaderLabels(
             ['Godzina', 'Tytuł', 'Opis'])
 
@@ -30,12 +31,23 @@ class DashboardWidget(QWidget):
         button_layout.addWidget(self.button1)
         button_layout.addWidget(self.button2)
 
-        #
+        #Tworzenie widgetów na dodatkowe informacje o dniu dzisiejszym i wybranym
+        self.additional_info_table = QTableWidget(self)
+        self.additional_info_table.setColumnCount(5)
+        self.additional_info_table.setHorizontalHeaderLabels(
+            ['Data', 'Dzień tygodnia', 'Dzień w roku', 'Tydzień w roku', 'Święto'])
 
-        # Tworzenie układu pionowego i dodanie do niego listy wydarzeń i układu przycisków
+        # Tworzenie layoutu horyzontalnego i dodanie do niego eventów
+        side_layout = QVBoxLayout()
+        side_layout.addWidget(self.special_event_table)
+        side_layout.addWidget(self.additional_info_table)
+        event_layout = QHBoxLayout()
+        event_layout.addWidget(self.event_table)
+        event_layout.addLayout(side_layout)
+
+        # Tworzenie układu pionowego i dodanie do niego list wydarzeń i układu przycisków
         layout = QVBoxLayout(self)
-        layout.addWidget(self.event_table)
-        layout.addWidget(self.special_event_table)
+        layout.addLayout(event_layout)
         layout.addLayout(button_layout)
 
         self.setLayout(layout)
@@ -57,12 +69,51 @@ class DashboardWidget(QWidget):
             self.event_table.setItem(row, 2, description_item)
             # Dodanie przycisku do wiersza
             self.event_table.setCellWidget(row, 3, edit_button)
+    
+    def change_number_to_weekday_name(self, day_number):
+        if day_number == 0:
+            return 'Monday'
+        elif day_number == 1:
+            return 'Tuesday'
+        elif day_number == 2:
+            return 'Wednesday'
+        elif day_number == 3:
+            return 'Thursday'
+        elif day_number == 4:
+            return 'Friday'
+        elif day_number == 5:
+            return 'Saturday'
+        else:
+            return 'Sunday'
+        
+
+    # Dodawanie dodatkowych informacji o dniu
+    def day_information(self, date):
+        holidays_in_year = holidays.PL(2023)
+        print(holidays_in_year.get(date.toPyDate()))
+        if not holidays_in_year.get(date.toPyDate()):
+            festival_item = QTableWidgetItem("")
+        else:
+            festival_item = QTableWidgetItem(holidays_in_year.get(date.toPyDate()))
+        print("item", festival_item.text())
+        day_of_week = QTableWidgetItem(self.change_number_to_weekday_name(date.toPyDate().weekday()))
+        print(date.toPyDate().strftime("%j"))
+        day_of_year = QTableWidgetItem(date.toPyDate().strftime("%j"))
+        week_of_year = QTableWidgetItem(date.toPyDate().strftime("%W"))
+        
+        self.additional_info_table.setRowCount(1)
+        self.additional_info_table.setItem(0, 0, QTableWidgetItem(date.toString()))
+        self.additional_info_table.setItem(0, 1, day_of_week)
+        self.additional_info_table.setItem(0, 2, day_of_year)
+        self.additional_info_table.setItem(0, 3, week_of_year)
+        self.additional_info_table.setItem(0, 4, festival_item)
 
     def set_special_events(self, events):
         self.events = events
         self.special_event_table.setRowCount(len(events))
         print(events)
-        for row, event in enumerate(events):
+        row = 0
+        for event in events:
             title_item = QTableWidgetItem(event['title'])
             if (event['genre'] == "b"):
                 self.special_event_table.setItem(row, 2, title_item)
@@ -70,6 +121,7 @@ class DashboardWidget(QWidget):
                 self.special_event_table.setItem(row, 1, title_item)
             else:
                 self.special_event_table.setItem(row, 0, title_item)
+            row += 1
             # Dodanie przycisku do wiersza
 
     def edit_event_dialog(self, event):
@@ -237,3 +289,5 @@ class DashboardWidget(QWidget):
 
         with open('events.json', 'w') as f:
             json.dump(events_json, f)
+
+    # Obliczanie dnia w roku
