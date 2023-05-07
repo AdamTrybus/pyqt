@@ -17,11 +17,11 @@ class DashboardWidget(QWidget):
         # Tworzenie listy dzisiejszych wydarzeń
         self.special_event_table = QTableWidget(self)
         self.special_event_table.setColumnCount(3)
-        self.event_table.setColumnCount(4)
+        self.event_table.setColumnCount(5)
         self.special_event_table.setHorizontalHeaderLabels(
             ['Święta', 'Imieniny', 'Urodziny'])
         self.event_table.setHorizontalHeaderLabels(
-            ['Godzina', 'Tytuł', 'Opis'])
+            ['Godzina', 'Tytuł', 'Opis', 'Edycja', 'Export'])
 
         # Tworzenie przycisków
         self.button1 = QPushButton("Dodaj", self)
@@ -65,12 +65,17 @@ class DashboardWidget(QWidget):
             edit_button = QPushButton('Edytuj', self.event_table)
             edit_button.setFixedSize(50, 30)
             edit_button.clicked.connect(lambda: self.edit_event_dialog(event))
+            export_button = QPushButton('Export', self.event_table)
+            export_button.setFixedSize(50, 30)
+            export_button.clicked.connect(
+                lambda: self.choose_events_to_icalendar([event]))
             self.event_table.setItem(row, 0, time_item)
             self.event_table.setItem(row, 1, title_item)
 
             self.event_table.setItem(row, 2, description_item)
             # Dodanie przycisku do wiersza
             self.event_table.setCellWidget(row, 3, edit_button)
+            self.event_table.setCellWidget(row, 4, export_button)
 
     def change_number_to_weekday_name(self, day_number):
         if day_number == 0:
@@ -114,7 +119,7 @@ class DashboardWidget(QWidget):
         self.additional_info_table.setItem(0, 4, festival_item)
 
     def set_special_events(self, events):
-        self.choose_events_to_icalendar(events)
+        # self.choose_events_to_icalendar(events)
         self.events = events
         self.special_event_table.setRowCount(len(events))
         print(events)
