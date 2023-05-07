@@ -2,6 +2,8 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 import json
 import holidays
+import icalendar
+from icalendar_parser import CalendarParser
 
 
 class DashboardWidget(QWidget):
@@ -31,7 +33,7 @@ class DashboardWidget(QWidget):
         button_layout.addWidget(self.button1)
         button_layout.addWidget(self.button2)
 
-        #Tworzenie widgetów na dodatkowe informacje o dniu dzisiejszym i wybranym
+        # Tworzenie widgetów na dodatkowe informacje o dniu dzisiejszym i wybranym
         self.additional_info_table = QTableWidget(self)
         self.additional_info_table.setColumnCount(5)
         self.additional_info_table.setHorizontalHeaderLabels(
@@ -69,7 +71,7 @@ class DashboardWidget(QWidget):
             self.event_table.setItem(row, 2, description_item)
             # Dodanie przycisku do wiersza
             self.event_table.setCellWidget(row, 3, edit_button)
-    
+
     def change_number_to_weekday_name(self, day_number):
         if day_number == 0:
             return 'Monday'
@@ -85,30 +87,34 @@ class DashboardWidget(QWidget):
             return 'Saturday'
         else:
             return 'Sunday'
-        
 
     # Dodawanie dodatkowych informacji o dniu
+
     def day_information(self, date):
         holidays_in_year = holidays.PL(2023)
         print(holidays_in_year.get(date.toPyDate()))
         if not holidays_in_year.get(date.toPyDate()):
             festival_item = QTableWidgetItem("")
         else:
-            festival_item = QTableWidgetItem(holidays_in_year.get(date.toPyDate()))
+            festival_item = QTableWidgetItem(
+                holidays_in_year.get(date.toPyDate()))
         print("item", festival_item.text())
-        day_of_week = QTableWidgetItem(self.change_number_to_weekday_name(date.toPyDate().weekday()))
+        day_of_week = QTableWidgetItem(
+            self.change_number_to_weekday_name(date.toPyDate().weekday()))
         print(date.toPyDate().strftime("%j"))
         day_of_year = QTableWidgetItem(date.toPyDate().strftime("%j"))
         week_of_year = QTableWidgetItem(date.toPyDate().strftime("%W"))
-        
+
         self.additional_info_table.setRowCount(1)
-        self.additional_info_table.setItem(0, 0, QTableWidgetItem(date.toString()))
+        self.additional_info_table.setItem(
+            0, 0, QTableWidgetItem(date.toString()))
         self.additional_info_table.setItem(0, 1, day_of_week)
         self.additional_info_table.setItem(0, 2, day_of_year)
         self.additional_info_table.setItem(0, 3, week_of_year)
         self.additional_info_table.setItem(0, 4, festival_item)
 
     def set_special_events(self, events):
+        self.choose_events_to_icalendar(events)
         self.events = events
         self.special_event_table.setRowCount(len(events))
         print(events)
@@ -138,11 +144,12 @@ class DashboardWidget(QWidget):
         description_label = QLabel("Opis:", dialog)
         description_edit = QLineEdit(event['description'], dialog)
         date_label = QLabel("Data:", dialog)
-
         date_edit = QDateEdit(QDate.fromString(
             event['date'], "yyyy-MM-dd"), dialog)
         time_label = QLabel("Godzina:", dialog)
         time_edit = QTimeEdit(QTime.fromString(event['time'], 'hh:mm'), dialog)
+        genre_label = QLabel("Typ:", dialog)
+        genre_edit = QLineEdit(event['genre'], dialog)
 
         # Tworzenie układu pionowego i dodanie do niego elementów formularza
         layout = QVBoxLayout(dialog)
@@ -154,6 +161,8 @@ class DashboardWidget(QWidget):
         layout.addWidget(date_edit)
         layout.addWidget(time_label)
         layout.addWidget(time_edit)
+        layout.addWidget(genre_label)
+        layout.addWidget(genre_edit)
 
         # Tworzenie przycisków
         save_button = QPushButton("Zatwierdź", dialog)
@@ -170,7 +179,7 @@ class DashboardWidget(QWidget):
         # Przypisanie funkcji do przycisków
 
         save_button.clicked.connect(lambda: self.handle_save_button_click(dialog, event, title_edit.text(
-        ), date_edit.date().toString("yyyy-MM-dd"), time_edit.time().toString("hh:mm")))
+        ), description_edit.text(), date_edit.date().toString("yyyy-MM-dd"), time_edit.time().toString("hh:mm"), genre_edit.text()))
 
         delete_button.clicked.connect(
             lambda: self.handle_delete_button_click(dialog, event))
@@ -190,7 +199,7 @@ class DashboardWidget(QWidget):
         description_label = QLabel("Opis:", dialog)
         description_edit = QLineEdit(dialog)
         date_label = QLabel("Data:", dialog)
-        date_edit = QDateEdit(dialog)
+        date_edit = QDateEdit(self.date, dialog)
         time_label = QLabel("Godzina:", dialog)
         time_edit = QTimeEdit(QTime.currentTime(), dialog)
         genre_label = QLabel("Typ:", dialog)
@@ -230,9 +239,9 @@ class DashboardWidget(QWidget):
         # Wyświetlenie okna dialogowego
         dialog.exec_()
 
-    def handle_save_button_click(self, dialog, event, title, description, date, time):
+    def handle_save_button_click(self, dialog, event, title, description, date, time, genre):
         self.delete_event(event)
-        self.insert_event(title, description, date, time)
+        self.insert_event(title, description, date, time, genre)
 
         # Zamknięcie okna dialogowego
         dialog.close()
@@ -291,3 +300,8 @@ class DashboardWidget(QWidget):
             json.dump(events_json, f)
 
     # Obliczanie dnia w roku
+
+    # Parsowanie wydarzen do icalendar
+    def choose_events_to_icalendar(self, events):
+        i_cal = CalendarParser(events, 'events.ics')
+        i_cal.export_events_to_file()
