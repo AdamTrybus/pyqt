@@ -2,6 +2,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 import json
 import holidays
+from settings import Settings
 
 
 class DashboardWidget(QWidget):
@@ -24,7 +25,8 @@ class DashboardWidget(QWidget):
         # Tworzenie przycisków
         self.button1 = QPushButton("Dodaj", self)
         self.button1.clicked.connect(self.add_event)
-        self.button2 = QPushButton("Przycisk 2", self)
+        self.button2 = QPushButton("Ustawienia", self)
+        self.button2.clicked.connect(self.open_settings_window)
 
         # Tworzenie układu horyzontalnego i dodanie do niego przycisków
         button_layout = QHBoxLayout()
@@ -51,6 +53,10 @@ class DashboardWidget(QWidget):
         layout.addLayout(button_layout)
 
         self.setLayout(layout)
+
+    def open_settings_window(self):
+        self.new_window = Settings()
+        self.new_window.show()
 
     def set_events(self, events, date):
         self.date = date

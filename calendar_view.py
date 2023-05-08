@@ -2,14 +2,23 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 import json
+from settings_manager import SettingsManager
 
 
 class CalendarWidget(QWidget):
+
     def __init__(self, dashboard, parent=None):
         super().__init__(parent)
 
         self.calendar = QCalendarWidget(self)
         self.calendar.setGridVisible(True)
+
+        #kolor tła kalendarza
+        settings_manager = SettingsManager.instance()
+        settings_manager.background_color_changed.connect(self.update_calendar_background_color)
+        background_color = settings_manager.get_background_color()
+        self.calendar.setStyleSheet(f"background-color: {background_color.name()}")
+
         self.calendar.clicked[QDate].connect(self.update_events)
         self.calendar.clicked[QDate].connect(self.update_additional_info)
 
@@ -48,7 +57,6 @@ class CalendarWidget(QWidget):
         self.dashboard.set_special_events(today_events)
 
     def update_additional_info(self, date):
-        print("cos", date.toPyDate())
         self.dashboard.day_information(date)
 
     def highlight_dates_with_events(self):
@@ -69,3 +77,6 @@ class CalendarWidget(QWidget):
         # Dodawanie formatu dla usuniętej daty
         event_date = QDate.fromString(event['date'], Qt.ISODate)
         self.calendar.setDateTextFormat(event_date, date_format)
+
+    def update_calendar_background_color(self, color):
+        self.calendar.setStyleSheet(f"background-color: {color.name()}")
