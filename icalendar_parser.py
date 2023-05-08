@@ -12,9 +12,9 @@ class CalendarParser():
         self.filename = filename
         self.i_calendar = icalendar.Calendar()
 
-    # def load_from_icalendar(self):
-    #     with open(self.filename, 'r') as f:
-    #         pass
+    def load_from_icalendar(self):
+        with open(self.filename, 'r') as f:
+            pass
 
     def create_icalendar(self):
         print("dupa")
