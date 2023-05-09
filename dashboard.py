@@ -159,8 +159,17 @@ class DashboardWidget(QWidget):
             event['date'], "yyyy-MM-dd"), dialog)
         time_label = QLabel("Godzina:", dialog)
         time_edit = QTimeEdit(QTime.fromString(event['time'], 'hh:mm'), dialog)
-        genre_label = QLabel("Typ:", dialog)
-        genre_edit = QLineEdit(event['genre'], dialog)
+        # genre_label = QLabel("Typ:", dialog)
+        # genre_edit = QLineEdit(event['genre'], dialog)
+        genre_label = QLabel("Wybierz typ wydarzenia:", dialog)
+        genres_combo_box = QComboBox(dialog)
+        genres_combo_box.addItem("Kulturalne")
+        genres_combo_box.addItem("Biznesowe")
+        genres_combo_box.addItem("Święta")
+        genres_combo_box.addItem("Naukowe")
+        genres_combo_box.addItem("Urodziny")
+        genres_combo_box.addItem("Imieniny")
+        genres_combo_box.addItem("Inne")
 
         # Tworzenie układu pionowego i dodanie do niego elementów formularza
         layout = QVBoxLayout(dialog)
@@ -173,7 +182,7 @@ class DashboardWidget(QWidget):
         layout.addWidget(time_label)
         layout.addWidget(time_edit)
         layout.addWidget(genre_label)
-        layout.addWidget(genre_edit)
+        layout.addWidget(genres_combo_box)
 
         # Tworzenie przycisków
         save_button = QPushButton("Zatwierdź", dialog)
@@ -190,7 +199,7 @@ class DashboardWidget(QWidget):
         # Przypisanie funkcji do przycisków
 
         save_button.clicked.connect(lambda: self.handle_save_button_click(dialog, event, title_edit.text(
-        ), description_edit.text(), date_edit.date().toString("yyyy-MM-dd"), time_edit.time().toString("hh:mm"), genre_edit.text()))
+        ), description_edit.text(), date_edit.date().toString("yyyy-MM-dd"), time_edit.time().toString("hh:mm"), genres_combo_box.currentText()))
 
         delete_button.clicked.connect(
             lambda: self.handle_delete_button_click(dialog, event))
@@ -213,8 +222,15 @@ class DashboardWidget(QWidget):
         date_edit = QDateEdit(self.date, dialog)
         time_label = QLabel("Godzina:", dialog)
         time_edit = QTimeEdit(QTime.currentTime(), dialog)
-        genre_label = QLabel("Typ:", dialog)
-        genre_edit = QLineEdit(dialog)
+        genre_label = QLabel("Wybierz typ wydarzenia:", dialog)
+        genres_combo_box = QComboBox(dialog)
+        genres_combo_box.addItem("Kulturalne")
+        genres_combo_box.addItem("Biznesowe")
+        genres_combo_box.addItem("Święta")
+        genres_combo_box.addItem("Naukowe")
+        genres_combo_box.addItem("Urodziny")
+        genres_combo_box.addItem("Imieniny")
+        genres_combo_box.addItem("Inne")
 
         # Tworzenie układu pionowego i dodanie do niego elementów formularza
         layout = QVBoxLayout(dialog)
@@ -227,7 +243,7 @@ class DashboardWidget(QWidget):
         layout.addWidget(time_label)
         layout.addWidget(time_edit)
         layout.addWidget(genre_label)
-        layout.addWidget(genre_edit)
+        layout.addWidget(genres_combo_box)
 
         # Tworzenie przycisków
         add_button = QPushButton("Dodaj", dialog)
@@ -243,7 +259,7 @@ class DashboardWidget(QWidget):
 
         # Przypisanie funkcji do przycisków
         add_button.clicked.connect(lambda: self.handle_add_button_click(dialog, title_edit.text(
-        ), description_edit.text(), date_edit.date().toString("yyyy-MM-dd"), time_edit.time().toString("hh:mm"), genre_edit.text()))
+        ), description_edit.text(), date_edit.date().toString("yyyy-MM-dd"), time_edit.time().toString("hh:mm"), genres_combo_box.currentText()))
 
         cancel_button.clicked.connect(dialog.reject)
 
