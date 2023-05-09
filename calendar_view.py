@@ -13,16 +13,21 @@ class CalendarWidget(QWidget):
         self.calendar = QCalendarWidget(self)
         self.calendar.setGridVisible(True)
 
-        #kolor tła kalendarza
+        # kolor tła kalendarza
         settings_manager = SettingsManager.instance()
-        settings_manager.background_color_changed.connect(self.update_calendar_background_color)
+        settings_manager.background_color_changed.connect(
+            self.update_calendar_background_color)
         background_color = settings_manager.get_background_color()
-        self.calendar.setStyleSheet(f"background-color: {background_color.name()}")
+
+        self.calendar.setStyleSheet(
+            f"background-color: {background_color.name()}")
 
         self.calendar.clicked[QDate].connect(self.update_events)
         self.calendar.clicked[QDate].connect(self.update_additional_info)
 
         self.dashboard = dashboard
+        self.settings_manager = settings_manager
+        # self.settings_manager.filters_changed.connect(self.update_events)
 
         self.splitter = QSplitter(self)
         self.splitter.setOrientation(Qt.Vertical)
@@ -35,6 +40,7 @@ class CalendarWidget(QWidget):
 
         self.events = self.load_events_from_file('events.json')
         self.highlight_dates_with_events()
+        # self.filters = filters
         # self.dashboard.day_information()
 
     def load_events_from_file(self, filename):
@@ -44,9 +50,11 @@ class CalendarWidget(QWidget):
         return self.events
 
     def update_events(self, date):
+        filters = self.settings_manager.get_filters()
+        print(filters)
         # Tutaj powinna być logika filtrowania wydarzeń z listy self.events
         filtered_events = [
-            event for event in self.events if event['date'] == date.toString(Qt.ISODate)]
+            event for event in self.events if event['date'] == date.toString(Qt.ISODate) and event['genre'] in filters]
         self.dashboard.set_events(filtered_events, date)
 
     def update_special_events(self, date):
