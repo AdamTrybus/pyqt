@@ -27,7 +27,8 @@ class CalendarWidget(QWidget):
 
         self.dashboard = dashboard
         self.settings_manager = settings_manager
-        # self.settings_manager.filters_changed.connect(self.h)
+        settings_manager.filters_changed.connect(
+            self.highlight_dates_with_events)
 
         self.splitter = QSplitter(self)
         self.splitter.setOrientation(Qt.Vertical)
@@ -87,6 +88,7 @@ class CalendarWidget(QWidget):
             return Qt.white
 
     def highlight_dates_with_events(self):
+        print("highlight_dates_with_events")
         filters = self.settings_manager.get_filters()
         # Tworzenie formatu dla dat z wydarzeniami
         date_format = QTextCharFormat()
