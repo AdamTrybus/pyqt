@@ -14,7 +14,8 @@ class SettingsManager(QObject):
             raise Exception(
                 "Singleton class, use instance() method to get object")
         self.background_color = QColor(Qt.white)
-        self.filters = []
+        self.filters = ['Urodziny', 'Imieniny', 'Święta',
+                        'Kulturalne', 'Biznesowe', 'Naukowe', 'Inne']
 
     @classmethod
     def instance(cls):
