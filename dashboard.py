@@ -73,8 +73,10 @@ class DashboardWidget(QWidget):
             edit_button.clicked.connect(lambda: self.edit_event_dialog(event))
             export_button = QPushButton('Export', self.event_table)
             export_button.setFixedSize(50, 30)
+            # export_button.clicked.connect(
+            #     lambda: self.choose_events_to_icalendar([event], filename='event.ics'))
             export_button.clicked.connect(
-                lambda: self.choose_events_to_icalendar([event]))
+                lambda: self.get_filename_from_browser)
             self.event_table.setItem(row, 0, time_item)
             self.event_table.setItem(row, 1, title_item)
 
@@ -329,6 +331,11 @@ class DashboardWidget(QWidget):
     # Obliczanie dnia w roku
 
     # Parsowanie wydarzen do icalendar
-    def choose_events_to_icalendar(self, events):
-        i_cal = CalendarParser(events, 'events.ics')
+    def choose_events_to_icalendar(self, events, filename):
+        i_cal = CalendarParser(events, filename)
         i_cal.export_events_to_file()
+
+    def get_filename_from_browser(self):
+        filename = QFileDialog.getOpenFileName(
+            self, 'Open file', 'c:\\', "iCal files (*.ics)")
+        return filename[0]
