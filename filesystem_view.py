@@ -14,14 +14,20 @@ class FileSystemView(QWidget):
         self.setGeometry(300, 300, appWidth, appHeight)
 
         self.model = QFileSystemModel()
-        self.model.setRootPath(dir_path)
-        self.tree = QTreeView()
-        self.tree.setModel(self.model)
-        self.tree.setRootIndex(self.model.index(dir_path))
-        self.tree.setColumnWidth(0, 250)
-        self.tree.setAlternatingRowColors(True)
+        # self.model.setRootPath(dir_path)
+        # self.tree = QTreeView()
+        # self.tree.setModel(self.model)
+        # self.tree.setRootIndex(self.model.index(dir_path))
+        # self.tree.setColumnWidth(0, 250)
+        # self.tree.setAlternatingRowColors(True)
 
         layout = QVBoxLayout()
-        layout.addWidget(self.tree)
+        # layout.addWidget(self.tree)
 
         self.setLayout(layout)
+        self.show()
+
+    def openFileManager(self):
+        # Open the file manager dialog
+        file_dialog = QFileDialog()
+        file_dialog.exec_()

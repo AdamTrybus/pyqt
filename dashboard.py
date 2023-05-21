@@ -1,9 +1,8 @@
-from PyQt5.QtWidgets import *
-from PyQt5.QtCore import *
+from PyQt5.QtWidgets import QLabel, QTimeEdit, QDateEdit, QComboBox, QVBoxLayout,  QWidget, QTableWidget, QPushButton, QDialog, QHBoxLayout, QVBoxLayout, QFileDialog, QTableWidgetItem, QLineEdit
+from PyQt5.QtCore import QDate, QTime
 import json
 import holidays
 from settings import Settings
-import icalendar
 from icalendar_parser import CalendarParser
 
 
@@ -56,9 +55,29 @@ class DashboardWidget(QWidget):
 
         self.setLayout(layout)
 
+    def save_file_dialog(self):
+        options = QFileDialog.Options()
+        options |= QFileDialog.DontUseNativeDialog
+        fileName, _ = QFileDialog.getSaveFileName(
+            self, "QFileDialog.getSaveFileName()", "", "Calendar Files (*.ics)", options=options)
+        if fileName:
+            return fileName
+
+    def open_file_name_dialog(self):
+        options = QFileDialog.Options()
+        options |= QFileDialog.DontUseNativeDialog
+        fileName, _ = QFileDialog.getOpenFileName(
+            self, "QFileDialog.getOpenFileName()", "", "Calendar Files (*.ics)", options=options)
+        if fileName:
+            return fileName
+
     def open_settings_window(self):
         self.new_window = Settings()
         self.new_window.show()
+
+    def save_file(self, filename, event):
+        if filename:
+            self.choose_events_to_icalendar([event], filename=filename)
 
     def set_events(self, events, date):
         self.date = date
@@ -73,8 +92,8 @@ class DashboardWidget(QWidget):
             edit_button.clicked.connect(lambda: self.edit_event_dialog(event))
             export_button = QPushButton('Export', self.event_table)
             export_button.setFixedSize(50, 30)
-            # export_button.clicked.connect(
-            #     lambda: self.choose_events_to_icalendar([event], filename='event.ics'))
+            export_button.clicked.connect(
+                lambda: self.save_file(self.save_file_dialog(), event))
             export_button.clicked.connect(
                 lambda: self.get_filename_from_browser)
             self.event_table.setItem(row, 0, time_item)
