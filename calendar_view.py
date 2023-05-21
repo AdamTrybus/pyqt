@@ -12,6 +12,7 @@ class CalendarWidget(QWidget):
 
         self.calendar = QCalendarWidget(self)
         self.calendar.setGridVisible(True)
+        self.my_palette = self.calendar.palette()
 
         # kolor tła kalendarza
         settings_manager = SettingsManager.instance()
@@ -27,7 +28,8 @@ class CalendarWidget(QWidget):
 
         self.dashboard = dashboard
         self.settings_manager = settings_manager
-        # self.settings_manager.filters_changed.connect(self.update_events)
+        settings_manager.filters_changed.connect(
+            self.unhighlight_deleted_dates)
 
         self.splitter = QSplitter(self)
         self.splitter.setOrientation(Qt.Vertical)
@@ -67,24 +69,58 @@ class CalendarWidget(QWidget):
     def update_additional_info(self, date):
         self.dashboard.day_information(date)
 
+    def attach_color_to_type(self, type):
+        print(type)
+        if type == "Urodziny":
+            return Qt.red
+        elif type == "Imieniny":
+            return Qt.blue
+        elif type == "Święta":
+            return Qt.yellow
+        elif type == "Kulturalne":
+            return Qt.green
+        elif type == "Biznesowe":
+            return Qt.magenta
+        elif type == "Naukowe":
+            return Qt.darkCyan
+        elif type == "Inne":
+            return Qt.darkYellow
+        else:
+            return Qt.white
+
     def highlight_dates_with_events(self):
+        print("highlight_dates_with_events")
+        filters = self.settings_manager.get_filters()
         # Tworzenie formatu dla dat z wydarzeniami
         date_format = QTextCharFormat()
-        date_format.setBackground(Qt.green)
 
         # Dodawanie formatu dla dat z wydarzeniami
         for event in self.events:
-            event_date = QDate.fromString(event['date'], Qt.ISODate)
-            self.calendar.setDateTextFormat(event_date, date_format)
+            print(event['genre'])
+            print(filters)
+            if event['genre'] in filters:
+                date_format.setBackground(
+                    self.attach_color_to_type(event['genre']))
+                event_date = QDate.fromString(event['date'], Qt.ISODate)
+                self.calendar.setDateTextFormat(event_date, date_format)
 
     def unhighlight_deleted_date(self, event):
         # Tworzenie formatu dla usuniętej daty
         date_format = QTextCharFormat()
-        date_format.setBackground(Qt.white)
+        date_format.setBackground(QColor(255, 255, 240))
 
         # Dodawanie formatu dla usuniętej daty
         event_date = QDate.fromString(event['date'], Qt.ISODate)
         self.calendar.setDateTextFormat(event_date, date_format)
 
+    def unhighlight_deleted_dates(self, filters):
+        self.highlight_dates_with_events()
+        for event in self.events:
+            if event['genre'] not in filters:
+                self.unhighlight_deleted_date(event)
+
     def update_calendar_background_color(self, color):
         self.calendar.setStyleSheet(f"background-color: {color.name()}")
+        self.dashboard.setStyleSheet(f"background-color: {color.name()}")
+        self.my_palette.setColor(QPalette.Window, color)
+        self.calendar.setPalette(self.my_palette)
