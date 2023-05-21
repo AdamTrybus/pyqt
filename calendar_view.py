@@ -54,6 +54,7 @@ class CalendarWidget(QWidget):
     def update_events(self, date):
         filters = self.settings_manager.get_filters()
         print(filters)
+        print(self.events)
         # Tutaj powinna być logika filtrowania wydarzeń z listy self.events
         filtered_events = [
             event for event in self.events if event['date'] == date.toString(Qt.ISODate) and event['genre'] in filters]
