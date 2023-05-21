@@ -76,7 +76,7 @@ class Settings(QWidget):
     def get_selected_color(self):
         color_name = self.color_combo_box.currentText()
         if color_name == "Biały":
-            return Qt.white
+            return QColor(255, 255, 240)
         elif color_name == "Beżowy":
             return QColor(255, 255, 240)
         elif color_name == "Zielony":

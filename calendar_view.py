@@ -29,7 +29,7 @@ class CalendarWidget(QWidget):
         self.dashboard = dashboard
         self.settings_manager = settings_manager
         settings_manager.filters_changed.connect(
-            self.highlight_dates_with_events)
+            self.unhighlight_deleted_dates)
 
         self.splitter = QSplitter(self)
         self.splitter.setOrientation(Qt.Vertical)
@@ -107,11 +107,17 @@ class CalendarWidget(QWidget):
     def unhighlight_deleted_date(self, event):
         # Tworzenie formatu dla usuniętej daty
         date_format = QTextCharFormat()
-        date_format.setBackground(Qt.white)
+        date_format.setBackground(QColor(255, 255, 240))
 
         # Dodawanie formatu dla usuniętej daty
         event_date = QDate.fromString(event['date'], Qt.ISODate)
         self.calendar.setDateTextFormat(event_date, date_format)
+
+    def unhighlight_deleted_dates(self, filters):
+        self.highlight_dates_with_events()
+        for event in self.events:
+            if event['genre'] not in filters:
+                self.unhighlight_deleted_date(event)
 
     def update_calendar_background_color(self, color):
         self.calendar.setStyleSheet(f"background-color: {color.name()}")
