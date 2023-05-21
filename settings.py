@@ -14,7 +14,7 @@ class Settings(QWidget):
         self.color_combo_box = QComboBox()
         self.color_combo_box.addItem("Biały")
         self.color_combo_box.addItem("Niebieski")
-        self.color_combo_box.addItem("Zielony")
+        self.color_combo_box.addItem("Beżowy")
         self.color_combo_box.addItem("Czerwony")
         self.color_combo_box.addItem("Żółty")
         self.color_combo_box.addItem("Różowy")
@@ -77,8 +77,8 @@ class Settings(QWidget):
         color_name = self.color_combo_box.currentText()
         if color_name == "Biały":
             return Qt.white
-        elif color_name == "Niebieski":
-            return Qt.blue
+        elif color_name == "Beżowy":
+            return QColor(255, 255, 240)
         elif color_name == "Zielony":
             return Qt.green
         elif color_name == "Czerwony":

@@ -12,6 +12,7 @@ class CalendarWidget(QWidget):
 
         self.calendar = QCalendarWidget(self)
         self.calendar.setGridVisible(True)
+        self.my_palette = self.calendar.palette()
 
         # kolor tła kalendarza
         settings_manager = SettingsManager.instance()
@@ -114,3 +115,6 @@ class CalendarWidget(QWidget):
 
     def update_calendar_background_color(self, color):
         self.calendar.setStyleSheet(f"background-color: {color.name()}")
+        self.dashboard.setStyleSheet(f"background-color: {color.name()}")
+        self.my_palette.setColor(QPalette.Window, color)
+        self.calendar.setPalette(self.my_palette)
