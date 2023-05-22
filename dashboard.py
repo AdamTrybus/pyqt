@@ -1,5 +1,6 @@
-from PyQt5.QtWidgets import QLabel, QTimeEdit, QDateEdit, QComboBox, QVBoxLayout,  QWidget, QTableWidget, QPushButton, QDialog, QHBoxLayout, QVBoxLayout, QFileDialog, QTableWidgetItem, QLineEdit
+from PyQt5.QtWidgets import QLabel, QTimeEdit, QSystemTrayIcon, QDateEdit, QComboBox, QVBoxLayout,  QWidget, QTableWidget, QPushButton, QDialog, QHBoxLayout, QVBoxLayout, QFileDialog, QTableWidgetItem, QLineEdit, QMenu, QAction
 from PyQt5.QtCore import QDate, QTime
+from PyQt5.QtGui import QIcon
 import json
 import holidays
 from settings import Settings
@@ -75,6 +76,23 @@ class DashboardWidget(QWidget):
     def open_settings_window(self):
         self.new_window = Settings()
         self.new_window.show()
+        self.trayIcon = QSystemTrayIcon()
+        self.trayIcon.setIcon(QIcon())
+        self.trayMenu = QMenu(self)
+        self.trayIcon.setContextMenu(self.trayMenu)
+
+        # Create an action to show the app window when the system tray icon is clicked
+        showAction = QAction("Show", self)
+        showAction.triggered.connect(self.show)
+
+        # Add the action to the menu
+        self.trayMenu.addAction(showAction)
+        self.show()
+
+    def checkEvents(self):
+        message = "You have event(s) today!"
+        self.trayIcon.showMessage(
+            "Event Notification", message, QSystemTrayIcon.Information, 5000)
 
     def save_file(self, filename, event):
         if filename:
