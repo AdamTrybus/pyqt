@@ -1,9 +1,9 @@
-from PyQt5.QtWidgets import *
-from PyQt5.QtCore import *
+from PyQt5.QtWidgets import QLabel, QTimeEdit, QSystemTrayIcon, QDateEdit, QComboBox, QVBoxLayout,  QWidget, QTableWidget, QPushButton, QDialog, QHBoxLayout, QVBoxLayout, QFileDialog, QTableWidgetItem, QLineEdit, QMenu, QAction
+from PyQt5.QtCore import QDate, QTime
+from PyQt5.QtGui import QIcon
 import json
 import holidays
 from settings import Settings
-import icalendar
 from icalendar_parser import CalendarParser
 
 
@@ -56,11 +56,54 @@ class DashboardWidget(QWidget):
 
         self.setLayout(layout)
 
+    def save_file_dialog(self):
+        options = QFileDialog.Options()
+        options |= QFileDialog.DontUseNativeDialog
+        fileName, _ = QFileDialog.getSaveFileName(
+            self, "QFileDialog.getSaveFileName()", "", "Calendar Files (*.ics)", options=options)
+        if fileName:
+            return fileName
+
+    def open_file_name_dialog(self):
+        options = QFileDialog.Options()
+        options |= QFileDialog.DontUseNativeDialog
+        fileName, _ = QFileDialog.getOpenFileName(
+            self, "QFileDialog.getOpenFileName()", "", "Calendar Files (*.ics)", options=options)
+        if fileName:
+            print(fileName)
+            return fileName
+
     def open_settings_window(self):
         self.new_window = Settings()
         self.new_window.show()
+        self.trayIcon = QSystemTrayIcon()
+        self.trayIcon.setIcon(QIcon())
+        self.trayMenu = QMenu(self)
+        self.trayIcon.setContextMenu(self.trayMenu)
+
+        # Create an action to show the app window when the system tray icon is clicked
+        showAction = QAction("Show", self)
+        showAction.triggered.connect(self.show)
+
+        # Add the action to the menu
+        self.trayMenu.addAction(showAction)
+        self.show()
+
+    def checkEvents(self):
+        message = "You have event(s) today!"
+        self.trayIcon.showMessage(
+            "Event Notification", message, QSystemTrayIcon.Information, 5000)
+
+    def save_file(self, filename, event):
+        if filename:
+            self.choose_events_to_icalendar([event], filename=filename)
+
+    # def handle_import_button_click(self, filename):
+    #     if filename:
+    #         self.load_from_icalendar(filename=filename)
 
     def set_events(self, events, date):
+        print("duupa")
         self.date = date
         self.events = events
         self.event_table.setRowCount(len(events))
@@ -73,10 +116,8 @@ class DashboardWidget(QWidget):
             edit_button.clicked.connect(lambda: self.edit_event_dialog(event))
             export_button = QPushButton('Export', self.event_table)
             export_button.setFixedSize(50, 30)
-            # export_button.clicked.connect(
-            #     lambda: self.choose_events_to_icalendar([event], filename='event.ics'))
             export_button.clicked.connect(
-                lambda: self.get_filename_from_browser)
+                lambda: self.save_file(self.save_file_dialog(), event))
             self.event_table.setItem(row, 0, time_item)
             self.event_table.setItem(row, 1, title_item)
 
@@ -86,20 +127,7 @@ class DashboardWidget(QWidget):
             self.event_table.setCellWidget(row, 4, export_button)
 
     def change_number_to_weekday_name(self, day_number):
-        if day_number == 0:
-            return 'Monday'
-        elif day_number == 1:
-            return 'Tuesday'
-        elif day_number == 2:
-            return 'Wednesday'
-        elif day_number == 3:
-            return 'Thursday'
-        elif day_number == 4:
-            return 'Friday'
-        elif day_number == 5:
-            return 'Saturday'
-        else:
-            return 'Sunday'
+        return ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'][day_number]
 
     # Dodawanie dodatkowych informacji o dniu
 
@@ -250,11 +278,13 @@ class DashboardWidget(QWidget):
         # Tworzenie przycisków
         add_button = QPushButton("Dodaj", dialog)
         cancel_button = QPushButton("Anuluj", dialog)
+        import_button = QPushButton("Importuj", dialog)
 
         # Tworzenie układu horyzontalnego i dodanie do niego przycisków
         button_layout = QHBoxLayout()
         button_layout.addWidget(add_button)
         button_layout.addWidget(cancel_button)
+        button_layout.addWidget(import_button)
 
         # Dodanie układu przycisków do układu pionowego
         layout.addLayout(button_layout)
@@ -264,6 +294,9 @@ class DashboardWidget(QWidget):
         ), description_edit.text(), date_edit.date().toString("yyyy-MM-dd"), time_edit.time().toString("hh:mm"), genres_combo_box.currentText()))
 
         cancel_button.clicked.connect(dialog.reject)
+
+        import_button.clicked.connect(
+            lambda: self.handle_import_button_click(dialog, self.open_file_name_dialog()))
 
         # Wyświetlenie okna dialogowego
         dialog.exec_()
@@ -335,7 +368,18 @@ class DashboardWidget(QWidget):
         i_cal = CalendarParser(events, filename)
         i_cal.export_events_to_file()
 
-    def get_filename_from_browser(self):
-        filename = QFileDialog.getOpenFileName(
-            self, 'Open file', 'c:\\', "iCal files (*.ics)")
-        return filename[0]
+    def handle_import_button_click(self, dialog, filename):
+        i_cal = CalendarParser([], filename)
+        events = i_cal.load_from_icalendar()
+        print(events)
+        for event in events:
+            self.insert_event(event['title'], event['description'], event['date'],
+                              event['time'], event['genre'])
+        dialog.close()
+
+        # Wczytanie wydarzeń z pliku JSON i zaktualizowanie kalendarza
+        self.parent().parent().load_events_from_file('events.json')
+        self.parent().parent().highlight_dates_with_events()
+
+        self.parent().parent().update_events(QDate.fromString(
+            event['date'], "yyyy-MM-dd"))

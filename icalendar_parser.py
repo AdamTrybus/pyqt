@@ -14,11 +14,21 @@ class CalendarParser():
 
     def load_from_icalendar(self):
         with open(self.filename, 'r') as f:
-            pass
+            calendar_file = f.read()
+        self.i_calendar = icalendar.Calendar.from_ical(calendar_file)
+        for component in self.i_calendar.walk():
+            if component.name == "VEVENT":
+                event = {
+                    'title': component.get('summary'),
+                    'description': '',
+                    'date': component.get('dtstart').dt.isoformat(),
+                    'time': '',
+                    'genre': 'other'
+                }
+                self.events.append(event)
+        return self.events
 
     def create_icalendar(self):
-        print("dupa")
-        print(self.events)
         for event in self.events:
             event_ical = icalendar.Event()
             event_ical.add('summary', event['title'])
