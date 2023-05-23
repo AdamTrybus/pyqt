@@ -23,7 +23,7 @@ class CalendarParser():
                     'description': '',
                     'date': component.get('dtstart').dt.isoformat(),
                     'time': '',
-                    'genre': 'other'
+                    'genre': 'Inne'
                 }
                 self.events.append(event)
         return self.events

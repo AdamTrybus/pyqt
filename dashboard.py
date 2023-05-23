@@ -107,6 +107,7 @@ class DashboardWidget(QWidget):
         self.date = date
         self.events = events
         self.event_table.setRowCount(len(events))
+        print(events)
         for row, event in enumerate(events):
             time_item = QTableWidgetItem(event['time'])
             title_item = QTableWidgetItem(event['title'])
