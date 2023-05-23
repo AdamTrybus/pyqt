@@ -3,7 +3,6 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from dashboard import DashboardWidget
 from calendar_view import CalendarWidget
-import icalendar
 
 
 class MainWidget(QWidget):
@@ -18,7 +17,6 @@ class MainWidget(QWidget):
         self.layout = QHBoxLayout(self)
         self.layout.addWidget(calendar_widget)
         self.setLayout(self.layout)
-        # dashboard.choose_events_to_icalendar()
 
 
 class MainWindow(QMainWindow):

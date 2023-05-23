@@ -5,6 +5,8 @@ import json
 import holidays
 from settings import Settings
 from icalendar_parser import CalendarParser
+from datetime import datetime, timedelta
+from dateutil.relativedelta import relativedelta
 
 
 class DashboardWidget(QWidget):
@@ -103,7 +105,6 @@ class DashboardWidget(QWidget):
     #         self.load_from_icalendar(filename=filename)
 
     def set_events(self, events, date):
-        print("duupa")
         self.date = date
         self.events = events
         self.event_table.setRowCount(len(events))
@@ -189,8 +190,7 @@ class DashboardWidget(QWidget):
             event['date'], "yyyy-MM-dd"), dialog)
         time_label = QLabel("Godzina:", dialog)
         time_edit = QTimeEdit(QTime.fromString(event['time'], 'hh:mm'), dialog)
-        # genre_label = QLabel("Typ:", dialog)
-        # genre_edit = QLineEdit(event['genre'], dialog)
+
         genre_label = QLabel("Wybierz typ wydarzenia:", dialog)
         genres_combo_box = QComboBox(dialog)
         genres_combo_box.addItem("Kulturalne")
@@ -200,6 +200,17 @@ class DashboardWidget(QWidget):
         genres_combo_box.addItem("Urodziny")
         genres_combo_box.addItem("Imieniny")
         genres_combo_box.addItem("Inne")
+
+        period_label = QLabel("Czy powtarzać:", dialog)
+        period_combo_box = QComboBox(dialog)
+        period_combo_box.addItem("Nigdy")
+        period_combo_box.addItem("Cotygodniowo")
+        period_combo_box.addItem("Dwutygodniowo")
+        period_combo_box.addItem("Miesięcznie")
+        if 'period' in event and event['period'] is None:
+            period_combo_box.setCurrentText("Nigdy")
+        elif 'period' in event:
+            period_combo_box.setCurrentText(event['period'])
 
         # Tworzenie układu pionowego i dodanie do niego elementów formularza
         layout = QVBoxLayout(dialog)
@@ -213,6 +224,8 @@ class DashboardWidget(QWidget):
         layout.addWidget(time_edit)
         layout.addWidget(genre_label)
         layout.addWidget(genres_combo_box)
+        layout.addWidget(period_label)
+        layout.addWidget(period_combo_box)
 
         # Tworzenie przycisków
         save_button = QPushButton("Zatwierdź", dialog)
@@ -229,7 +242,8 @@ class DashboardWidget(QWidget):
         # Przypisanie funkcji do przycisków
 
         save_button.clicked.connect(lambda: self.handle_save_button_click(dialog, event, title_edit.text(
-        ), description_edit.text(), date_edit.date().toString("yyyy-MM-dd"), time_edit.time().toString("hh:mm"), genres_combo_box.currentText()))
+        ), description_edit.text(), date_edit.date().toString("yyyy-MM-dd"), time_edit.time().toString("hh:mm"),
+         genres_combo_box.currentText(), period_combo_box.currentText()))
 
         delete_button.clicked.connect(
             lambda: self.handle_delete_button_click(dialog, event))
@@ -252,6 +266,7 @@ class DashboardWidget(QWidget):
         date_edit = QDateEdit(self.date, dialog)
         time_label = QLabel("Godzina:", dialog)
         time_edit = QTimeEdit(QTime.currentTime(), dialog)
+        
         genre_label = QLabel("Wybierz typ wydarzenia:", dialog)
         genres_combo_box = QComboBox(dialog)
         genres_combo_box.addItem("Kulturalne")
@@ -261,6 +276,14 @@ class DashboardWidget(QWidget):
         genres_combo_box.addItem("Urodziny")
         genres_combo_box.addItem("Imieniny")
         genres_combo_box.addItem("Inne")
+
+        period_label = QLabel("Czy powtarzać:", dialog)
+        period_combo_box = QComboBox(dialog)
+        period_combo_box.addItem("Nigdy")
+        period_combo_box.addItem("Tygodniowo")
+        period_combo_box.addItem("Dwutygodniowo")
+        period_combo_box.addItem("Miesięcznie")
+
 
         # Tworzenie układu pionowego i dodanie do niego elementów formularza
         layout = QVBoxLayout(dialog)
@@ -274,6 +297,8 @@ class DashboardWidget(QWidget):
         layout.addWidget(time_edit)
         layout.addWidget(genre_label)
         layout.addWidget(genres_combo_box)
+        layout.addWidget(period_label)
+        layout.addWidget(period_combo_box)
 
         # Tworzenie przycisków
         add_button = QPushButton("Dodaj", dialog)
@@ -291,7 +316,8 @@ class DashboardWidget(QWidget):
 
         # Przypisanie funkcji do przycisków
         add_button.clicked.connect(lambda: self.handle_add_button_click(dialog, title_edit.text(
-        ), description_edit.text(), date_edit.date().toString("yyyy-MM-dd"), time_edit.time().toString("hh:mm"), genres_combo_box.currentText()))
+        ), description_edit.text(), date_edit.date().toString("yyyy-MM-dd"), time_edit.time().toString("hh:mm"),
+         genres_combo_box.currentText(), period_combo_box.currentText()))
 
         cancel_button.clicked.connect(dialog.reject)
 
@@ -301,9 +327,9 @@ class DashboardWidget(QWidget):
         # Wyświetlenie okna dialogowego
         dialog.exec_()
 
-    def handle_save_button_click(self, dialog, event, title, description, date, time, genre):
+    def handle_save_button_click(self, dialog, event, title, description, date, time, genre, period):
         self.delete_event(event)
-        self.insert_event(title, description, date, time, genre)
+        self.insert_event(title, description, date, time, genre, period)
 
         # Zamknięcie okna dialogowego
         dialog.close()
@@ -325,8 +351,8 @@ class DashboardWidget(QWidget):
         self.parent().parent().unhighlight_deleted_date(event)
         self.parent().parent().update_events(self.date)
 
-    def handle_add_button_click(self, dialog, title, description, date, time, genre):
-        self.insert_event(title, description, date, time, genre)
+    def handle_add_button_click(self, dialog, title, description, date, time, genre, period):
+        self.insert_event(title, description, date, time, genre, period)
 
         # Zamknięcie okna dialogowego
         dialog.close()
@@ -337,32 +363,71 @@ class DashboardWidget(QWidget):
 
         self.parent().parent().update_events(self.date)
 
-    def insert_event(self, title, description, date, time, genre):
+
+    def insert_event(self, title, description, date, time, genre, period):
         # Wczytanie istniejących wydarzeń z pliku JSON
         with open('events.json', 'r') as f:
             events_json = json.load(f)
 
         # Dodanie nowego wydarzenia do listy
         new_event = {'title': title, 'description': description,
-                     'date': date, 'time': time, 'genre': genre}
+                    'date': date, 'time': time, 'genre': genre, 'period': period}
         events_json.append(new_event)
+
+        # Generowanie dodatkowych wydarzeń w odpowiednich interwałach
+        if period == "Cotygodniowo":
+            current_date = datetime.strptime(date, "%Y-%m-%d")
+            end_of_year = datetime(current_date.year, 12, 31)
+
+            while current_date < end_of_year:
+                current_date += timedelta(weeks=1)
+                new_event = {'title': title, 'description': description,
+                            'date': current_date.strftime("%Y-%m-%d"), 'time': time, 'genre': genre, 'period': period}
+                events_json.append(new_event)
+
+        elif period == "Dwutygodniowo":
+            current_date = datetime.strptime(date, "%Y-%m-%d")
+            end_of_year = datetime(current_date.year, 12, 31)
+
+            while current_date < end_of_year:
+                current_date += timedelta(weeks=2)
+                new_event = {'title': title, 'description': description,
+                            'date': current_date.strftime("%Y-%m-%d"), 'time': time, 'genre': genre, 'period': period}
+                events_json.append(new_event)
+
+        elif period == "Miesięcznie":
+            current_date = datetime.strptime(date, "%Y-%m-%d")
+            end_of_year = datetime(current_date.year, 12, 31)
+
+            while current_date < end_of_year:
+                current_date += relativedelta(months=1)
+                new_event = {'title': title, 'description': description,
+                            'date': current_date.strftime("%Y-%m-%d"), 'time': time, 'genre': genre, 'period': period}
+                events_json.append(new_event)
 
         # Zapisanie zmienionej listy do pliku JSON
         with open('events.json', 'w') as f:
             json.dump(events_json, f)
 
+
     def delete_event(self, event):
         # Usunięcie wydarzenia z pliku JSON
         with open('events.json', 'r') as f:
             events_json = json.load(f)
+            
+        updated_events = [evt for evt in events_json if
+                            (evt.get('title') != event.get('title') or
+                            evt.get('description') != event.get('description') or
+                            evt.get('time') != event.get('time') or
+                            evt.get('genre') != event.get('genre') or
+                            evt.get('period') != event.get('period'))]
 
-        events_json.remove(event)
 
         with open('events.json', 'w') as f:
-            json.dump(events_json, f)
+            json.dump(updated_events, f)
+
 
     # Obliczanie dnia w roku
-
     # Parsowanie wydarzen do icalendar
     def choose_events_to_icalendar(self, events, filename):
         i_cal = CalendarParser(events, filename)
@@ -374,7 +439,7 @@ class DashboardWidget(QWidget):
         print(events)
         for event in events:
             self.insert_event(event['title'], event['description'], event['date'],
-                              event['time'], event['genre'])
+                              event['time'], event['genre'], event['period'])
         dialog.close()
 
         # Wczytanie wydarzeń z pliku JSON i zaktualizowanie kalendarza
