@@ -6,6 +6,7 @@ from calendar_view import CalendarWidget
 from alerView2 import Notification, init, Urgency, onClose, onHelp, onIgnore
 
 
+
 class MainWidget(QWidget):
     def __init__(self):
         super().__init__()
