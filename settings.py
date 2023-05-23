@@ -12,11 +12,10 @@ class Settings(QWidget):
 
         self.color_label = QLabel("Wybierz kolor tła kalendarza:")
         self.color_combo_box = QComboBox()
-        self.color_combo_box.addItem("Biały")
         self.color_combo_box.addItem("Niebieski")
         self.color_combo_box.addItem("Beżowy")
         self.color_combo_box.addItem("Czerwony")
-        self.color_combo_box.addItem("Żółty")
+        self.color_combo_box.addItem("Pomarańczowo-żółty")
         self.color_combo_box.addItem("Różowy")
         self.color_combo_box.addItem("Fioletowy")
 
@@ -75,20 +74,18 @@ class Settings(QWidget):
 
     def get_selected_color(self):
         color_name = self.color_combo_box.currentText()
-        if color_name == "Biały":
+        if color_name == "Beżowy":
             return QColor(255, 255, 240)
-        elif color_name == "Beżowy":
-            return QColor(255, 255, 240)
-        elif color_name == "Zielony":
-            return Qt.green
+        elif color_name == "Niebieski":
+            return QColor(219, 244, 255)
         elif color_name == "Czerwony":
-            return Qt.red
-        elif color_name == "Żółty":
-            return Qt.yellow
+            return QColor(255, 219, 219)
+        elif color_name == "Pomarańcszo-żółty":
+            return QColor(255, 247, 219)
         elif color_name == "Różowy":
-            return Qt.magenta
+            return QColor(255, 235, 254)
         elif color_name == "Fioletowy":
-            return Qt.darkMagenta
+            return QColor(229, 219, 255)
 
     def get_selected_filter(self, state, name):
         if state == Qt.Checked:
