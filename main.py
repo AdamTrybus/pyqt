@@ -1,9 +1,8 @@
-from PyQt5.QtWidgets import *
-from PyQt5.QtCore import *
-from PyQt5.QtGui import *
+from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QHBoxLayout
+from PyQt5.QtCore import QDate, Qt
 from dashboard import DashboardWidget
 from calendar_view import CalendarWidget
-from alerView2 import Notification, init, Urgency, onClose, onHelp, onIgnore
+from alertView import Notification, init, Urgency, onClose, onHelp, onIgnore
 
 
 
@@ -19,7 +18,6 @@ class MainWidget(QWidget):
         self.layout = QHBoxLayout(self)
         self.layout.addWidget(calendar_widget)
         self.setLayout(self.layout)
-        messages = []
         init("demo")
         for event in calendar_widget.events:
             if event['date'] == dt.toString(Qt.ISODate):
@@ -45,7 +43,6 @@ class MainWindow(QMainWindow):
 
 if __name__ == '__main__':
     app = QApplication([])
-    # app = QCoreApplication(sys.argv)
     main_window = MainWindow()
     main_window.show()
     app.exec_()

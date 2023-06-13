@@ -1,16 +1,3 @@
-#   Copyright (c) 2018 Kurt Jacobson
-#      <kurtcjacobson@gmail.com>
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 2 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-
 import dbus
 from collections import OrderedDict
 
@@ -134,21 +121,9 @@ class Notification(object):
             raise ValueError("Unknown urgency level ")
         self.hints['urgency'] = dbus.Byte(value)
 
-    def setSoundFile(self, sound_file):
-        """Sets a sound file to play when the notification shows"""
-        self.hints['sound-file'] = sound_file
-
-    def setSoundName(self, sound_name):
-        """Set a freedesktop.org sound name to play when notification shows"""
-        self.hints['sound-name'] = sound_name
-
     def setIconPath(self, icon_path):
         """Set the URI of the icon to display in the notification"""
         self.hints['image-path'] = 'file://' + icon_path
-
-    def setQIcon(self, q_icon):
-        # FixMe this would be convenient, but may not be possible
-        raise NotImplemented
 
     def setLocation(self, x_pos, y_pos):
         """Sets the location to display the notification"""
@@ -170,13 +145,7 @@ class Notification(object):
         self.hints[key] = value
 
     def addAction(self, action, label, callback, user_data=None):
-        """Add an action to the notification.
-        Args:
-            action (str):               A sort key identifying the action
-            label (str):                The text to display on the action button
-            callback (bound method):    The method to call when the action is activated
-            user_data (any, optional):  Any user data to be passed to the action callback
-        """
+        """Add an action to the notification."""
         self.actions[action] = (label, callback, user_data)
 
     def _makeActionsList(self):
@@ -198,9 +167,6 @@ class Notification(object):
             callback(self, action)
         else:
             callback(self, action, user_data)
-
-
-# ----------------------- E X A M P L E -----------------------
 
 def onHelp(n, action):
     assert (action == "help"), "Action was not help!"
@@ -224,24 +190,4 @@ if __name__ == "__main__":
     import sys
     from PyQt5.QtCore import QCoreApplication
     app = QCoreApplication(sys.argv)
-
-    # Initialize the DBus connection to the notification server
-    init("demo")
-
-    # Initialize a new notification object
-    n = Notification("Demo Notification",
-                     "This notification is very important as it " +
-                     "notifies you that notifications are working.",
-                     timeout=3000
-                     )
-    n.setUrgency(Urgency.NORMAL)
-    n.setCategory("device")
-    n.setIconPath("/usr/share/icons/Tango/scalable/status/dialog-error.svg")
-    # no user data
-    n.addAction("help", "Help", onHelp)
-    # passing arbitrary user data to the callback
-    n.addAction("ignore", "Ignore", onIgnore, 12345)
-    n.onClosed(onClose)
-
-    n.show()
     app.exec_()

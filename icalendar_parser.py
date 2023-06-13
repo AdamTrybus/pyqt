@@ -1,7 +1,4 @@
-from PyQt5.QtWidgets import *
-from PyQt5.QtCore import *
 import icalendar
-import json
 from datetime import date
 
 
