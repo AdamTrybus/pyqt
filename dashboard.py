@@ -70,7 +70,6 @@ class DashboardWidget(QWidget):
         fileName, _ = QFileDialog.getOpenFileName(
             self, "QFileDialog.getOpenFileName()", "", "Calendar Files (*.ics)", options=options)
         if fileName:
-            print(fileName)
             return fileName
 
     def open_settings_window(self):
@@ -103,11 +102,9 @@ class DashboardWidget(QWidget):
     #         self.load_from_icalendar(filename=filename)
 
     def set_events(self, events, date):
-        print("duupa")
         self.date = date
         self.events = events
         self.event_table.setRowCount(len(events))
-        print(events)
         for row, event in enumerate(events):
             time_item = QTableWidgetItem(event['time'])
             title_item = QTableWidgetItem(event['title'])
@@ -133,17 +130,14 @@ class DashboardWidget(QWidget):
     # Dodawanie dodatkowych informacji o dniu
 
     def day_information(self, date):
-        holidays_in_year = holidays.PL(2023)
-        print(holidays_in_year.get(date.toPyDate()))
+        holidays_in_year = holidays.PL()
         if not holidays_in_year.get(date.toPyDate()):
             festival_item = QTableWidgetItem("")
         else:
             festival_item = QTableWidgetItem(
                 holidays_in_year.get(date.toPyDate()))
-        print("item", festival_item.text())
         day_of_week = QTableWidgetItem(
             self.change_number_to_weekday_name(date.toPyDate().weekday()))
-        print(date.toPyDate().strftime("%j"))
         day_of_year = QTableWidgetItem(date.toPyDate().strftime("%j"))
         week_of_year = QTableWidgetItem(date.toPyDate().strftime("%W"))
 
@@ -159,7 +153,6 @@ class DashboardWidget(QWidget):
         # self.choose_events_to_icalendar(events)
         self.events = events
         self.special_event_table.setRowCount(len(events))
-        print(events)
         row = 0
         for event in events:
             title_item = QTableWidgetItem(event['title'])
@@ -173,8 +166,6 @@ class DashboardWidget(QWidget):
             # Dodanie przycisku do wiersza
 
     def edit_event_dialog(self, event):
-        print(event)
-
         # Tworzenie okna dialogowego
         dialog = QDialog(self)
         dialog.setWindowTitle("Edytuj wydarzenie")
@@ -372,7 +363,6 @@ class DashboardWidget(QWidget):
     def handle_import_button_click(self, dialog, filename):
         i_cal = CalendarParser([], filename)
         events = i_cal.load_from_icalendar()
-        print(events)
         for event in events:
             self.insert_event(event['title'], event['description'], event['date'],
                               event['time'], event['genre'])

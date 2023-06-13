@@ -1,6 +1,6 @@
-from PyQt5.QtWidgets import *
-from PyQt5.QtCore import *
-from PyQt5.QtGui import *
+from PyQt5.QtWidgets import QWidget, QCalendarWidget, QSplitter, QVBoxLayout
+from PyQt5.QtCore import QDate, Qt
+from PyQt5.QtGui import QTextCharFormat, QPalette, QColor
 import json
 from settings_manager import SettingsManager
 
@@ -42,8 +42,6 @@ class CalendarWidget(QWidget):
 
         self.events = self.load_events_from_file('events.json')
         self.highlight_dates_with_events()
-        # self.filters = filters
-        # self.dashboard.day_information()
 
     def load_events_from_file(self, filename):
         with open(filename, 'r') as f:
@@ -53,9 +51,7 @@ class CalendarWidget(QWidget):
 
     def update_events(self, date):
         filters = self.settings_manager.get_filters()
-        print(filters)
-        print(self.events)
-        # Tutaj powinna być logika filtrowania wydarzeń z listy self.events
+        # logika filtrowania wydarzeń z listy self.events
         filtered_events = [
             event for event in self.events if event['date'] == date.toString(Qt.ISODate) and event['genre'] in filters]
         self.dashboard.set_events(filtered_events, date)
@@ -64,14 +60,12 @@ class CalendarWidget(QWidget):
         # filtrowanie urodzin, imienin, świąt
         today_events = [
             special_event for special_event in self.events if special_event['date'] == date.toString(Qt.ISODate)]
-        print(date.toString(Qt.ISODate))
         self.dashboard.set_special_events(today_events)
 
     def update_additional_info(self, date):
         self.dashboard.day_information(date)
 
     def attach_color_to_type(self, type):
-        print(type)
         if type == "Urodziny":
             return Qt.red
         elif type == "Imieniny":
@@ -90,15 +84,12 @@ class CalendarWidget(QWidget):
             return Qt.white
 
     def highlight_dates_with_events(self):
-        print("highlight_dates_with_events")
         filters = self.settings_manager.get_filters()
         # Tworzenie formatu dla dat z wydarzeniami
         date_format = QTextCharFormat()
 
         # Dodawanie formatu dla dat z wydarzeniami
         for event in self.events:
-            print(event['genre'])
-            print(filters)
             if event['genre'] in filters:
                 date_format.setBackground(
                     self.attach_color_to_type(event['genre']))

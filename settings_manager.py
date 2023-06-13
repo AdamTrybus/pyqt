@@ -1,6 +1,5 @@
-from PyQt5.QtWidgets import *
-from PyQt5.QtCore import *
-from PyQt5.QtGui import *
+from PyQt5.QtCore import Qt, QObject, pyqtSignal
+from PyQt5.QtGui import QColor
 
 
 class SettingsManager(QObject):
@@ -32,10 +31,8 @@ class SettingsManager(QObject):
         return self.background_color
 
     def set_filters(self, filters):
-        print("filters")
         self.filters = filters
         self.filters_changed.emit(filters)
 
     def get_filters(self):
-        print(self.filters)
         return self.filters
